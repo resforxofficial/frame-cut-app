@@ -6,70 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프레임컷</title>
     <style>
-        .frame-area {
+        .frame-container {
             position: relative;
-            width: 400px;
-            height: 400px;
-            border: 1px solid #ccc;
+            width: 500px;
+            height: 500px;
+            border: 2px solid #aaa;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            overflow: hidden;
         }
 
-        #user-photo {
+        #user-image {
             position: absolute;
             top: 0;
             left: 0;
+            max-width: none;
             cursor: move;
             z-index: 1;
-            max-width: none;
         }
 
-        #frame {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 2;
-            pointer-events: none;
-            /* 프레임 위에 클릭 방지 */
+        #controls {
+            margin-bottom: 10px;
         }
     </style>
-
 </head>
 
 <body>
-    <h2>프레임에 맞춰 사진 올리기</h2>
 
-    <input type="file" id="upload-frame" accept="image/*">
-    <input type="file" id="upload-photo" accept="image/*">
+    <div id="controls">
+        <label>프레임 업로드: <input type="file" id="frame-upload" accept="image/*" /></label>
+        <br />
+        <label>사진 업로드: <input type="file" id="image-upload" accept="image/*" /></label>
+    </div>
 
-    <div class="frame-area" id="frameArea">
-        <img id="user-photo" />
-        <img id="frame" />
+    <div class="frame-container" id="frameContainer">
+        <img id="user-image" />
     </div>
 
     <script>
-        const frameInput = document.getElementById('upload-frame');
-        const photoInput = document.getElementById('upload-photo');
-        const frameImg = document.getElementById('frame');
-        const userPhoto = document.getElementById('user-photo');
+        const frameUpload = document.getElementById('frame-upload');
+        const imageUpload = document.getElementById('image-upload');
+        const frameContainer = document.getElementById('frameContainer');
+        const userImage = document.getElementById('user-image');
 
-        frameInput.addEventListener('change', (e) => {
+        // 프레임 업로드 처리
+        frameUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                frameImg.src = URL.createObjectURL(file);
+                const url = URL.createObjectURL(file);
+                frameContainer.style.backgroundImage = `url('${url}')`;
             }
         });
 
-        photoInput.addEventListener('change', (e) => {
+        // 사용자 이미지 업로드 처리
+        imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                userPhoto.src = URL.createObjectURL(file);
+                const url = URL.createObjectURL(file);
+                userImage.src = url;
+                userImage.style.width = '50%';  // 필요 시 조절
+                userImage.style.top = '0px';
+                userImage.style.left = '0px';
             }
         });
 
-        // 기본적인 드래그 기능 추가
+        // 드래그 기능
         let isDragging = false;
-        let offsetX, offsetY;
+        let offsetX = 0, offsetY = 0;
 
-        userPhoto.addEventListener('mousedown', (e) => {
+        userImage.addEventListener('mousedown', (e) => {
             isDragging = true;
             offsetX = e.offsetX;
             offsetY = e.offsetY;
@@ -77,9 +83,11 @@
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
-                const rect = frameArea.getBoundingClientRect();
-                userPhoto.style.left = (e.clientX - rect.left - offsetX) + 'px';
-                userPhoto.style.top = (e.clientY - rect.top - offsetY) + 'px';
+                const rect = frameContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left - offsetX;
+                const y = e.clientY - rect.top - offsetY;
+                userImage.style.left = `${x}px`;
+                userImage.style.top = `${y}px`;
             }
         });
 
