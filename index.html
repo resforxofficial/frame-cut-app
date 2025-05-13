@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프레임컷</title>
+    <style>
+        .frame-area {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border: 1px solid #ccc;
+        }
+
+        #user-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: move;
+            z-index: 1;
+            max-width: none;
+        }
+
+        #frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            pointer-events: none;
+            /* 프레임 위에 클릭 방지 */
+        }
+    </style>
+
+</head>
+
+<body>
+    <h2>프레임에 맞춰 사진 올리기</h2>
+
+    <input type="file" id="upload-frame" accept="image/*">
+    <input type="file" id="upload-photo" accept="image/*">
+
+    <div class="frame-area" id="frameArea">
+        <img id="user-photo" />
+        <img id="frame" />
+    </div>
+
+    <script>
+        const frameInput = document.getElementById('upload-frame');
+        const photoInput = document.getElementById('upload-photo');
+        const frameImg = document.getElementById('frame');
+        const userPhoto = document.getElementById('user-photo');
+
+        frameInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                frameImg.src = URL.createObjectURL(file);
+            }
+        });
+
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                userPhoto.src = URL.createObjectURL(file);
+            }
+        });
+
+        // 기본적인 드래그 기능 추가
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        userPhoto.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.offsetX;
+            offsetY = e.offsetY;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const rect = frameArea.getBoundingClientRect();
+                userPhoto.style.left = (e.clientX - rect.left - offsetX) + 'px';
+                userPhoto.style.top = (e.clientY - rect.top - offsetY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+
+</html>
